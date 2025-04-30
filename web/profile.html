@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto mt-10 px-4">
+
+    <!-- Profile Header -->
+    <div class="flex flex-col md:flex-row items-center md:items-start gap-8 bg-white p-6 rounded-lg shadow">
+
+        <!-- Profile Picture -->
+        <div class="flex-shrink-0">
+            {% if profile.profile_picture %}
+                <img src="{{ profile.profile_picture.url }}" alt="Profile Picture"
+                     class="w-28 h-28 sm:w-36 sm:h-36 rounded-full object-cover border-4 border-gradient-to-tr from-pink-500 via-red-500 to-yellow-500 p-1">
+            {% else %}
+                <img src="{% static 'default-avatar.jpg' %}" alt="Default Avatar"
+                     class="w-28 h-28 sm:w-36 sm:h-36 rounded-full object-cover border-4 border-gray-300 p-1">
+            {% endif %}
+        </div>
+
+        <!-- User Info -->
+        <div class="flex-1 w-full">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:gap-6 mb-4">
+
+                <!-- Username & Buttons -->
+                <h2 class="text-2xl font-light break-all">@{{ profile.user.username }}</h2>
+
+                {% if user != profile.user %}
+                <form action="{% url 'toggle_follow' profile.user.username %}" method="post" class="mt-2 sm:mt-0">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-1 rounded text-sm hover:bg-blue-600 transition">
+                        {{ is_following|yesno:"Unfollow,Follow" }}
+                    </button>
+                </form>
+                {% else %}
+                    <a href="{% url 'edit_profile' %}" class="mt-2 sm:mt-0 bg-gray-100 text-gray-800 px-4 py-1 rounded text-sm hover:bg-gray-200 transition">
+                        Edit Profile
+                    </a>
+                {% endif %}
+
+            </div>
+
+            <!-- Stats -->
+            <div class="flex gap-6 text-gray-700 text-sm mb-4">
+                <div><span class="font-semibold">{{ posts|length }}</span> posts</div>
+                <div><span class="font-semibold">{{ profile.followers.count }}</span> followers</div>
+                <div><span class="font-semibold">{{ profile.user.following.count }}</span> following</div>
+            </div>
+
+            <!-- Full Name + Bio -->
+            <div class="text-sm">
+                <p class="font-semibold">{{ profile.user.first_name }} {{ profile.user.last_name }}</p>
+                <p class="text-gray-600 break-words">{{ profile.bio|default:"No bio yet." }}</p>
+
+                {% if profile.website %}
+                <div class="mt-2">
+                    <a href="{{ profile.website }}" target="_blank" class="text-blue-600 text-sm hover:underline break-words">
+                        {{ profile.website }}
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- User Posts -->
+    <div class="mt-10 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {% for post in posts %}
+            <div class="bg-white rounded-lg shadow overflow-hidden relative group">
+
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" alt="Post Image" class="w-full h-48 object-cover group-hover:opacity-80 transition">
+                {% endif %}
+                <div class="p-2">
+                    <p class="text-xs text-gray-600 truncate">{{ post.content }}</p>
+                </div>
+
+            </div>
+        {% empty %}
+            <p class="text-gray-400 col-span-full text-center">This user hasn’t posted anything yet.</p>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="text-2xl font-bold mb-4">Search Results for "{{ query }}"</h2>
+
+{% if results %}
+    {% for post in results %}
+    <div class="border rounded-lg p-4 shadow-sm mb-6 bg-white">
+        <div class="flex items-center gap-3 mb-2">
+            {% if post.user.profile.profile_picture %}
+                <img src="{{ post.user.profile.profile_picture.url }}" class="w-10 h-10 rounded-full" alt="avatar">
+            {% else %}
+                <img src="" class="w-10 h-10 rounded-full" alt="default-avatar">
+            {% endif %}
+            <div>
+                <a href="{% url 'profile' post.user.username %}" class="font-semibold text-blue-600 hover:underline">
+                    {{ post.user.username }}
+                </a>
+                <p class="text-gray-400 text-sm">{{ post.created_at }}</p>
+            </div>
+        </div>
+        <p class="mb-2">{{ post.content }}</p>
+        {% if post.image %}
+        <img src="{{ post.image.url }}" alt="Post Image" class="rounded mb-2">
+        {% endif %}
+    </div>
+    {% endfor %}
+{% else %}
+    <p class="text-gray-500">No results found.</p>
+{% endif %}
+{% endblock %}
